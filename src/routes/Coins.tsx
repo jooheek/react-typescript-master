@@ -1,11 +1,15 @@
-import { useState, useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 import { fetchCoins } from '../api';
+import { isDarkAtom } from '../atoms';
 
 const Container = styled.div`
   padding: 0px 20px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 `;
 
 const Header = styled.header`
@@ -19,7 +23,7 @@ const CoinList = styled.ul``;
 
 const Coin = styled.li`
   background-color: white;
-  color: ${(props) => props.theme.bgColor};
+  color: ${(props) => props.theme.textColor};
   padding: 20px;
   border-radius: 15px;
   margin-bottom: 10px;
@@ -61,10 +65,19 @@ interface ICoin {
   is_active: boolean;
   type: string;
 }
-
+/* 
+interface ICoinsProps {
+  toggleDark: () => void;
+}
+ */
+//function Coins({ toggleDark }: ICoinsProps) {
 function Coins() {
+  const setDarkAtom = useSetRecoilState(isDarkAtom);
+  const toggleDarkAtom = () => setDarkAtom((prev) => !prev);
   const { isLoading, data } = useQuery<ICoin[]>('allCoins', fetchCoins);
-  /*   const [coins, setCoins] = useState<CoinInterface[]>([]);
+
+  /*
+  const [coins, setCoins] = useState<CoinInterface[]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     //상세페이지에 들어갔다가 나오면 또다시 coin api를 불러온다.
@@ -78,11 +91,13 @@ function Coins() {
       setCoins(json.slice(0, 100));
       setLoading(false);
     })();
-  }, []); */
+  }, []); 
+  */
   return (
     <Container>
       <Header>
         <Title>Coin</Title>
+        <button onClick={toggleDarkAtom}>Toggle Mode</button>
       </Header>
       <CoinList>
         {isLoading ? (
@@ -108,5 +123,8 @@ function Coins() {
     </Container>
   );
 }
+//이전에는 상세페이지에 들어갔다가 다시 돌아오면 loading 이 보였는데
+//react query를 사용하니까 안보임 -> react query가 데이터를 캐시에 저장해두기 때문이다.
+//react query는 데이터를 저장한다.
 
 export default Coins;
